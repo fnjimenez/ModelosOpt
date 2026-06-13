@@ -1,0 +1,335 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900;1000&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+#kr{font-family:'Nunito',sans-serif;background:#0d1b4b;min-height:600px;display:flex;flex-direction:column;align-items:center;overflow:hidden;position:relative}
+#kr::before{content:'H₀ H₁ Z α β μ σ p';position:absolute;top:0;left:0;right:0;bottom:0;font-size:8em;font-weight:900;color:rgba(255,255,255,.03);word-break:break-all;line-height:1;pointer-events:none;overflow:hidden;letter-spacing:20px}
+#ktop{width:100%;background:#080e2b;padding:9px 18px;display:flex;align-items:center;gap:10px;z-index:2}
+#ktop .klogo{color:#FFD100;font-size:1.3em;font-weight:900;letter-spacing:2px;flex-shrink:0}
+#kpw{flex:1;height:8px;background:rgba(255,255,255,.15);border-radius:8px;overflow:hidden}
+#kpb{height:100%;background:#00e676;border-radius:8px;transition:width .5s}
+#ksbadge{background:#FFD100;color:#0d1b4b;font-size:.9em;font-weight:900;padding:4px 12px;border-radius:16px;white-space:nowrap}
+
+#kintro{display:flex;flex-direction:column;align-items:center;padding:36px 20px;text-align:center;width:100%;z-index:2}
+#kintro .big-sym{font-size:4.5em;font-weight:900;color:#FFD100;line-height:1;margin-bottom:6px;animation:kbounce .7s ease infinite alternate;letter-spacing:4px}
+#kintro h1{color:#fff;font-size:2.4em;font-weight:900;line-height:1.1;margin-bottom:6px}
+#kintro .sub{color:#90CAF9;font-size:1.1em;font-weight:800;margin-bottom:4px}
+#kintro .hint{color:rgba(255,255,255,.45);font-size:.88em;margin-bottom:28px}
+#kplaybtn{background:#FFD100;color:#0d1b4b;font-family:'Nunito',sans-serif;font-size:1.7em;font-weight:900;padding:18px 60px;border:none;border-radius:50px;cursor:pointer;box-shadow:0 6px 0 #b39700;letter-spacing:2px;transition:transform .1s}
+#kplaybtn:active{transform:translateY(3px);box-shadow:0 3px 0 #b39700}
+
+#kqscreen{display:none;flex-direction:column;align-items:center;width:100%;padding:0 14px 20px;z-index:2}
+#kqtop{display:flex;align-items:center;gap:14px;padding:12px 0 8px}
+#kqnum{color:rgba(255,255,255,.6);font-size:.9em;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+#ktimer{background:#FFD100;color:#0d1b4b;font-size:2.2em;font-weight:900;width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 #b39700;transition:background .3s,color .3s;flex-shrink:0}
+#ktimer.urgente{background:#e53935;color:#fff;animation:kpulse .4s ease infinite alternate;box-shadow:0 4px 0 #7f0000}
+
+#kqcard{background:#fff;border-radius:20px;padding:22px 26px;width:100%;max-width:680px;text-align:center;box-shadow:0 6px 0 rgba(0,0,0,.3);margin-bottom:18px}
+#kexamtag{display:none;background:#FFD100;color:#0d1b4b;font-size:.78em;font-weight:900;padding:4px 14px;border-radius:14px;border:2px solid #0d1b4b;margin-bottom:10px;letter-spacing:1px}
+#kqtxt{font-size:1.35em;font-weight:900;color:#0d1b4b;line-height:1.35}
+#kqsym{font-size:2.2em;font-weight:900;color:#0d1b4b;margin-bottom:6px;letter-spacing:3px}
+
+#kopts{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:680px}
+.kopt{border:none;border-radius:16px;padding:18px 16px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:1.05em;font-weight:900;color:#fff;display:flex;align-items:center;gap:12px;box-shadow:0 5px 0 rgba(0,0,0,.3);text-align:left;transition:transform .12s;word-break:break-word;min-height:70px}
+.kopt:hover:not(:disabled){transform:translateY(-3px)}
+.kopt:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.kopt:disabled{cursor:default}
+.kshp{min-width:38px;height:38px;border-radius:6px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.4em;flex-shrink:0}
+.oa{background:#c62828} .ob{background:#1565c0} .oc{background:#2e7d32} .od{background:#e65100}
+.kwrong{background:#424242!important;opacity:.5}
+.kshake{animation:kshake .4s ease}
+
+#kfb{display:none;flex-direction:column;align-items:center;text-align:center;padding:10px 0 0;width:100%;max-width:680px}
+#kfbico{font-size:3em;margin-bottom:4px;animation:kpopin .35s ease}
+#kfbtxt{color:#FFD100;font-size:1.8em;font-weight:900;text-shadow:0 2px 0 rgba(0,0,0,.3);margin-bottom:6px}
+#kfbpts{color:#fff;font-size:1.2em;font-weight:800;margin-bottom:4px}
+#kpista{background:rgba(255,255,255,.1);border-radius:12px;padding:12px 18px;color:rgba(255,255,255,.9);font-size:.95em;font-weight:800;max-width:580px;line-height:1.45;border-left:4px solid #FFD100}
+#knxtbtn{margin-top:14px;background:#FFD100;color:#0d1b4b;font-family:'Nunito',sans-serif;font-size:1.15em;font-weight:900;padding:13px 38px;border:none;border-radius:36px;cursor:pointer;box-shadow:0 4px 0 #b39700;transition:transform .1s;letter-spacing:1px}
+#knxtbtn:active{transform:translateY(2px)}
+
+#kresult{display:none;flex-direction:column;align-items:center;padding:24px 18px 36px;text-align:center;width:100%;z-index:2}
+#kresbig{font-size:4.5em;margin-bottom:6px;animation:kbounce .65s ease infinite alternate}
+#kresnombre{color:#FFD100;font-size:1.5em;font-weight:900;margin-bottom:4px;text-shadow:0 2px 0 rgba(0,0,0,.3)}
+#kresdato{background:#FFD100;color:#0d1b4b;font-size:2em;font-weight:900;padding:14px 36px;border-radius:18px;box-shadow:0 6px 0 #b39700;margin:12px 0;letter-spacing:1px}
+#kresbroma{background:rgba(255,255,255,.1);border-radius:14px;padding:16px 22px;color:#fff;font-size:1em;font-weight:800;max-width:520px;line-height:1.5;margin:10px 0 20px;border-left:4px solid #FFD100;font-style:italic}
+#kbars{width:100%;max-width:540px;margin-bottom:20px}
+.kbrow{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.kblabel{color:rgba(255,255,255,.65);font-size:.82em;font-weight:800;width:32px;text-align:right;flex-shrink:0}
+.kbouter{flex:1;background:rgba(255,255,255,.12);border-radius:16px;height:28px;overflow:hidden}
+.kbinner{height:100%;border-radius:16px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;color:#fff;font-size:.82em;font-weight:900;transition:width 1s ease}
+.kbok{background:#00c853}.kbno{background:#c62828}
+#kreinbtn{background:#FFD100;color:#0d1b4b;font-family:'Nunito',sans-serif;font-size:1.3em;font-weight:900;padding:15px 44px;border:none;border-radius:40px;cursor:pointer;box-shadow:0 5px 0 #b39700;transition:transform .1s;letter-spacing:1px}
+#kreinbtn:active{transform:translateY(2px)}
+
+@keyframes kbounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+@keyframes kpulse{from{transform:scale(1)}to{transform:scale(1.15)}}
+@keyframes kpopin{0%{transform:scale(0)}75%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes kshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+</style>
+
+<div id="kr">
+  <div id="ktop">
+    <div class="klogo">EI · S5</div>
+    <div id="kpw"><div id="kpb" style="width:0%"></div></div>
+    <div id="ksbadge">0 pts</div>
+  </div>
+
+  <div id="kintro">
+    <div class="big-sym">H₀ vs H₁</div>
+    <h1>Prueba de<br>Hipótesis</h1>
+    <div class="sub">Estadística Inferencial — Semana 5</div>
+    <div class="hint">10 preguntas · 20 seg c/u · pistas sin revelar respuestas</div>
+    <button id="kplaybtn" onclick="kIniciar()">JUGAR</button>
+  </div>
+
+  <div id="kqscreen">
+    <div id="kqtop">
+      <div id="kqnum">P1 / 10</div>
+      <div id="ktimer">20</div>
+    </div>
+    <div id="kqcard">
+      <div id="kexamtag">Contenido evaluado</div>
+      <div id="kqsym"></div>
+      <div id="kqtxt"></div>
+    </div>
+    <div id="kopts">
+      <button class="kopt oa" id="ko0" onclick="kElegir(0)"><span class="kshp">▲</span><span id="kt0"></span></button>
+      <button class="kopt ob" id="ko1" onclick="kElegir(1)"><span class="kshp">◆</span><span id="kt1"></span></button>
+      <button class="kopt oc" id="ko2" onclick="kElegir(2)"><span class="kshp">●</span><span id="kt2"></span></button>
+      <button class="kopt od" id="ko3" onclick="kElegir(3)"><span class="kshp">■</span><span id="kt3"></span></button>
+    </div>
+    <div id="kfb">
+      <div id="kfbico"></div>
+      <div id="kfbtxt"></div>
+      <div id="kfbpts"></div>
+      <div id="kpista"></div>
+      <button id="knxtbtn" onclick="kSiguiente()">Siguiente</button>
+    </div>
+  </div>
+
+  <div id="kresult">
+    <div id="kresbig"></div>
+    <div id="kresnombre"></div>
+    <div id="kresdato"></div>
+    <div id="kresbroma"></div>
+    <div id="kbars"></div>
+    <button id="kreinbtn" onclick="kReiniciar()">JUGAR DE NUEVO</button>
+  </div>
+</div>
+
+<script>
+const KQ=[
+  {sym:"H₀ / H₁",
+   t:"¿Cuál es la diferencia entre H₀ y H₁?",
+   o:["Son lo mismo, solo cambia el nombre","H₀ es lo que queremos demostrar y H₁ es lo que se asume verdadero","H₀ es la hipótesis que se somete a prueba (contiene =) y H₁ es lo que se quiere demostrar","H₀ se rechaza siempre si n es grande"],
+   c:2,ex:true,
+   pok:"Exacto! H₀ siempre tiene = (o <= o >=). H₁ es lo que buscamos demostrar.",
+   pmal:"Pista: H₀ es el 'statu quo' — lo que se asume por defecto. Siempre contiene un signo de..."},
+
+  {sym:"α",
+   t:"El nivel de significancia α representa:",
+   o:["La probabilidad de cometer Error Tipo II","La probabilidad de NO rechazar H₀","La probabilidad de rechazar H₀ cuando es verdadera (Error Tipo I)","El tamaño de la muestra necesario"],
+   c:2,ex:true,
+   pok:"Correcto! α = P(Error Tipo I) = P(rechazar H₀ siendo verdadera). Valores comunes: 0.01, 0.05, 0.10.",
+   pmal:"Pista: α es el riesgo que aceptamos de cometer una 'falsa alarma'. Es la probabilidad del error más grave."},
+
+  {sym:"β",
+   t:"El Error Tipo II (β) ocurre cuando:",
+   o:["Rechazamos H₀ siendo verdadera","No rechazamos H₀ cuando es FALSA","El p-value es menor que α","La muestra es demasiado pequeña"],
+   c:1,ex:true,
+   pok:"Muy bien! β = omisión. No detectamos un problema real. Su complemento (1-β) es la POTENCIA de la prueba.",
+   pmal:"Pista: Error Tipo II es 'pasar por alto' algo. H₀ es falsa pero... ¿qué hicimos con ella?"},
+
+  {sym:"Z",
+   t:"¿Cuándo se usa el estadístico Z en lugar de t?",
+   o:["Siempre que la variable sea continua","Cuando n < 30 y σ es desconocida","Cuando n ≥ 30 (muestra grande, por el TCL)","Solo cuando la población es normal"],
+   c:2,ex:true,
+   pok:"Correcto! Con n ≥ 30 el Teorema Central del Límite garantiza distribución normal de x̄ → usamos Z.",
+   pmal:"Pista: piensa en el Teorema Central del Límite. ¿A partir de qué tamaño de muestra la distribución de x̄ es aproximadamente normal?"},
+
+  {sym:"p-value",
+   t:"Si el p-value = 0.003 y α = 0.05, la decisión es:",
+   o:["No rechazar H₀ porque 0.003 < 0.05","Rechazar H₀ porque p-value < α","Rechazar H₀ porque p-value > α","No se puede decidir sin el valor crítico Z"],
+   c:1,ex:true,
+   pok:"Exacto! Regla de oro: p-value ≤ α → RECHAZAR H₀. Aquí 0.003 < 0.05, hay evidencia suficiente.",
+   pmal:"Pista: compara directamente p-value con α. Si el p-value es MUY pequeño, los datos son muy raros bajo H₀, entonces..."},
+
+  {sym:"→ ← ↔",
+   t:"Una prueba de hipótesis con H₁: μ ≠ μ₀ es de:",
+   o:["Cola derecha (unilateral derecha)","Cola izquierda (unilateral izquierda)","Dos colas (bilateral)","No se puede determinar sin los datos"],
+   c:2,ex:true,
+   pok:"Correcto! El signo ≠ indica que cualquier diferencia importa (mayor o menor) → DOS COLAS. Se divide α entre 2.",
+   pmal:"Pista: ≠ significa 'diferente de' en cualquier dirección. ¿Cuántas colas tiene una prueba que detecta diferencias en ambos sentidos?"},
+
+  {sym:"Z = ?",
+   t:"La fórmula del estadístico Z para una media es:",
+   o:["Z = (μ₀ − x̄) / (s/√n)","Z = (x̄ − μ₀) × √n / s","Z = (x̄ − μ₀) / (s/√n)","Z = s × √n / (x̄ − μ₀)"],
+   c:2,ex:true,
+   pok:"Perfecto! Z = (x̄ − μ₀) / (s/√n). El numerador es la diferencia observada, el denominador es el error estándar.",
+   pmal:"Pista: el numerador resta el valor hipotético (μ₀) a la media muestral (x̄). El denominador es el error estándar: s dividido entre..."},
+
+  {sym:"1 − α",
+   t:"Si α = 0.05, el nivel de CONFIANZA de la prueba es:",
+   o:["5%","95%","50%","100%"],
+   c:1,ex:false,
+   pok:"Bien! Nivel de confianza = 1 − α = 1 − 0.05 = 0.95 = 95%. El complemento del riesgo de Error Tipo I.",
+   pmal:"Pista: nivel de confianza es todo lo que NO es α. Si arriesgamos 5%, confiamos en el otro..."},
+
+  {sym:"Región crítica",
+   t:"En una prueba cola DERECHA con α=0.05, la región de rechazo es:",
+   o:["Z < −1.645","Z > 1.960","Z > 1.645","|Z| > 1.960"],
+   c:2,ex:false,
+   pok:"Correcto! Cola derecha: rechazar H₀ cuando Z > Z_α = 1.645. Todo el α está en la cola derecha.",
+   pmal:"Pista: cola derecha significa que los valores extremos que nos preocupan están del lado POSITIVO de Z. El valor crítico para α=0.05 en una cola es..."},
+
+  {sym:"CEDIS / μ₁ vs μ₂",
+   t:"Para comparar el tiempo de entrega de dos grupos de choferes (con GPS y sin GPS), se usa:",
+   o:["Prueba Z para una media","Prueba Z para DOS medias independientes con la fórmula √(s1²/n1 + s2²/n2)","Prueba t con n−1 grados de libertad","Intervalo de confianza para la proporción"],
+   c:1,ex:false,
+   pok:"Exacto! Dos grupos independientes → Z para diferencia de medias: Z = (x̄1 − x̄2) / √(s1²/n1 + s2²/n2).",
+   pmal:"Pista: hay DOS grupos independientes. No es una media sola. El error estándar combina las varianzas de ambos grupos bajo la raíz cuadrada..."}
+];
+
+const BROMAS=[
+  {min:9,txt:"Perfecto estadístico. Con ese dominio de hipótesis ya puedes hacerle una prueba Z al profesor a ver si realmente sabe más que tú. Spoiler: rechazarías H₀."},
+  {min:7,txt:"Muy bien! Dominaste α, β y Z. Solo faltó un poco más de potencia estadística... como tu prueba, tienes un beta que mejorar."},
+  {min:5,txt:"Pasable. Sabes lo básico pero tu región de no rechazo es muy amplia. El Error Tipo II te persigue."},
+  {min:3,txt:"Mmm. Tus respuestas tienen una varianza tan alta que el intervalo de confianza abarca todas las opciones posibles."},
+  {min:0,txt:"Histórico. Tu p-value es tan alto que no rechazarías H₀ ni con α=0.99. El azar te supera en este quiz."}
+];
+
+let kActual=0,kPts=0,kTmr=null,kSegs=20,kResp=false,kHist=[],kOrden=[];
+const $=id=>document.getElementById(id);
+
+function kShuffle(a){return[...a].sort(()=>Math.random()-.5)}
+
+function kIniciar(){
+  $('kintro').style.display='none';
+  $('kqscreen').style.display='flex';
+  kCargar();
+}
+
+function kCargar(){
+  kResp=false;
+  const q=KQ[kActual];
+  $('kpb').style.width=Math.round((kActual/KQ.length)*100)+'%';
+  $('kqnum').textContent='P'+(kActual+1)+' / '+KQ.length;
+  $('kqsym').textContent=q.sym;
+  $('kqtxt').textContent=q.t;
+  $('kexamtag').style.display=q.ex?'inline-block':'none';
+  const idx=[0,1,2,3];
+  kOrden=kShuffle(idx);
+  kOrden.forEach((oi,pos)=>{
+    $('kt'+pos).textContent=q.o[oi];
+    const btn=$('ko'+pos);
+    btn.className='kopt '+['oa','ob','oc','od'][pos];
+    btn.disabled=false;
+    btn.style.opacity='1';
+  });
+  $('kfb').style.display='none';
+  $('kopts').style.display='grid';
+  const tim=$('ktimer');
+  tim.className='';
+  kSegs=20;
+  tim.textContent=20;
+  clearInterval(kTmr);
+  kTmr=setInterval(()=>{
+    kSegs--;
+    tim.textContent=kSegs;
+    if(kSegs<=5) tim.classList.add('urgente');
+    if(kSegs<=0){clearInterval(kTmr);if(!kResp)kRevelar(-1);}
+  },1000);
+}
+
+function kElegir(pos){
+  if(kResp)return;
+  clearInterval(kTmr);
+  kRevelar(pos);
+}
+
+function kRevelar(pos){
+  kResp=true;
+  const q=KQ[kActual];
+  const elegidoOrig=pos>=0?kOrden[pos]:-1;
+  const ok=elegidoOrig===q.c;
+  const pts=ok?Math.max(100,Math.round(1000*(kSegs/20))):0;
+  kPts+=pts;
+  kHist.push({ok,pregunta:kActual});
+  $('ksbadge').textContent=kPts+' pts';
+  [0,1,2,3].forEach(p=>{
+    const btn=$('ko'+p);
+    btn.disabled=true;
+    if(p===pos&&!ok){
+      btn.classList.add('kwrong');
+      btn.classList.add('kshake');
+    } else if(p!==pos){
+      btn.style.opacity='.35';
+    }
+  });
+  const fb=$('kfb');
+  fb.style.display='flex';
+  if(pos===-1){
+    $('kfbico').textContent='⏰';
+    $('kfbtxt').textContent='Tiempo agotado!';
+    $('kfbpts').textContent='';
+  } else if(ok){
+    $('kfbico').textContent='🎉';
+    $('kfbtxt').textContent='Correcto!';
+    $('kfbpts').textContent='+'+pts+' puntos';
+  } else {
+    $('kfbico').textContent='❌';
+    $('kfbtxt').textContent='No fue esa...';
+    $('kfbpts').textContent='0 puntos';
+  }
+  $('kpista').textContent=ok?q.pok:q.pmal;
+  $('knxtbtn').textContent=kActual<KQ.length-1?'Siguiente →':'Ver resultado';
+}
+
+function kSiguiente(){
+  kActual++;
+  $('kfb').style.display='none';
+  if(kActual<KQ.length) kCargar();
+  else kResultado();
+}
+
+function kResultado(){
+  clearInterval(kTmr);
+  $('kqscreen').style.display='none';
+  $('kpb').style.width='100%';
+  const res=$('kresult');
+  res.style.display='flex';
+  const correctas=kHist.filter(h=>h.ok).length;
+  const pct=Math.round((correctas/KQ.length)*100);
+  let icono,titulo;
+  if(pct>=90){icono='🏆';titulo='Estadístico de élite!';}
+  else if(pct>=70){icono='🥇';titulo='Muy bien!';}
+  else if(pct>=50){icono='🥈';titulo='Aprobado!';}
+  else if(pct>=30){icono='📊';titulo='Sigue practicando...';}
+  else{icono='💀';titulo='No rechaces seguir estudiando!';}
+  $('kresbig').textContent=icono;
+  $('kresnombre').textContent=titulo;
+  $('kresdato').textContent=kPts+' pts  ·  '+correctas+'/'+KQ.length+' correctas';
+  const broma=BROMAS.find(b=>correctas>=b.min)||BROMAS[BROMAS.length-1];
+  $('kresbroma').textContent='"'+broma.txt+'"';
+  const bars=$('kbars');
+  bars.innerHTML='';
+  KQ.forEach((_,i)=>{
+    const h=kHist[i];
+    const ok=h&&h.ok;
+    const sym=KQ[i].sym.split('/')[0].trim();
+    const row=document.createElement('div');
+    row.className='kbrow';
+    row.innerHTML='<div class="kblabel" style="font-size:.7em;width:38px">'+sym+'</div><div class="kbouter"><div class="kbinner '+(ok?'kbok':'kbno')+'" style="width:0%">'+(ok?'correcta':'falló')+'</div></div>';
+    bars.appendChild(row);
+    setTimeout(()=>{row.querySelector('.kbinner').style.width=ok?'100%':'50%';},150+i*70);
+  });
+}
+
+function kReiniciar(){
+  kActual=0;kPts=0;kHist=[];kResp=false;
+  $('ksbadge').textContent='0 pts';
+  $('kpb').style.width='0%';
+  $('kresult').style.display='none';
+  $('kintro').style.display='flex';
+}
+</script>
