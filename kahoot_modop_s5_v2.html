@@ -1,0 +1,307 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+#kr{font-family:'Nunito',sans-serif;background:#2d0066;min-height:580px;display:flex;flex-direction:column;align-items:center;overflow:hidden}
+#ktop{width:100%;background:#1a003d;padding:9px 18px;display:flex;align-items:center;gap:10px}
+#ktop .klogo{color:#fff;font-size:1.3em;font-weight:900;letter-spacing:1px;flex-shrink:0}
+#kpw{flex:1;height:8px;background:rgba(255,255,255,.2);border-radius:8px;overflow:hidden}
+#kpb{height:100%;background:#00e676;border-radius:8px;transition:width .5s}
+#ksbadge{background:#fff;color:#2d0066;font-size:.9em;font-weight:900;padding:4px 12px;border-radius:16px;white-space:nowrap}
+
+#kintro{display:flex;flex-direction:column;align-items:center;padding:44px 20px;text-align:center;width:100%}
+#kintro h1{color:#fff;font-size:3em;font-weight:900;line-height:1.1;margin-bottom:8px;animation:kbounce .7s ease infinite alternate}
+#kintro .sub{color:#ce93d8;font-size:1.2em;font-weight:800;margin-bottom:6px}
+#kintro .hint{color:rgba(255,255,255,.55);font-size:.9em;margin-bottom:32px}
+#kplaybtn{background:#00e676;color:#003300;font-family:'Nunito',sans-serif;font-size:1.6em;font-weight:900;padding:18px 54px;border:none;border-radius:50px;cursor:pointer;box-shadow:0 6px 0 #00a152;letter-spacing:1px;transition:transform .1s}
+#kplaybtn:active{transform:translateY(3px);box-shadow:0 3px 0 #00a152}
+
+#kqscreen{display:none;flex-direction:column;align-items:center;width:100%;padding:0 14px 20px}
+#kqmeta{display:flex;align-items:center;gap:14px;padding:14px 0 10px}
+#kqnum{color:rgba(255,255,255,.65);font-size:.9em;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+#ktimer{background:#fff;color:#2d0066;font-size:2em;font-weight:900;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 rgba(0,0,0,.25);transition:background .3s,color .3s;flex-shrink:0}
+#ktimer.urgente{background:#f44336;color:#fff;animation:kpulse .5s ease infinite alternate}
+#kqcard{background:#fff;border-radius:18px;padding:22px 26px;width:100%;max-width:660px;text-align:center;box-shadow:0 6px 0 rgba(0,0,0,.2);margin-bottom:18px}
+#kexamtag{display:none;background:#fff3cd;color:#856404;font-size:.76em;font-weight:900;padding:3px 12px;border-radius:14px;border:2px solid #ffc107;margin-bottom:10px}
+#kqtxt{font-size:1.35em;font-weight:900;color:#1a003d;line-height:1.35}
+#kopts{display:grid;grid-template-columns:1fr 1fr;gap:11px;width:100%;max-width:660px}
+.kopt{border:none;border-radius:14px;padding:16px 14px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:1.05em;font-weight:900;color:#fff;display:flex;align-items:center;gap:10px;box-shadow:0 5px 0 rgba(0,0,0,.25);text-align:left;transition:transform .12s;word-break:break-word}
+.kopt:hover:not(:disabled){transform:translateY(-3px)}
+.kopt:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.kopt:disabled{cursor:default}
+.kshp{width:34px;height:34px;border-radius:4px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:1.2em;flex-shrink:0}
+.oa{background:#c62828} .ob{background:#1565c0} .oc{background:#2e7d32} .od{background:#e65100}
+.kwrong{background:#424242!important;opacity:.55}
+.kshake{animation:kshake .4s ease}
+
+#kfb{display:none;flex-direction:column;align-items:center;text-align:center;padding:12px 0 0;width:100%;max-width:660px}
+#kfbico{font-size:3.5em;animation:kpopin .35s ease;margin-bottom:4px}
+#kfbtxt{color:#fff;font-size:1.6em;font-weight:900;text-shadow:0 2px 0 rgba(0,0,0,.2);margin-bottom:6px}
+#kpista{background:rgba(255,255,255,.12);border-radius:12px;padding:12px 18px;color:rgba(255,255,255,.9);font-size:.95em;font-weight:800;max-width:580px;line-height:1.45;border-left:4px solid #ffd54f}
+#knxtbtn{margin-top:14px;background:#fff;color:#2d0066;font-family:'Nunito',sans-serif;font-size:1.15em;font-weight:900;padding:13px 38px;border:none;border-radius:36px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.2);transition:transform .1s}
+#knxtbtn:active{transform:translateY(2px)}
+
+#kresult{display:none;flex-direction:column;align-items:center;padding:28px 18px 36px;text-align:center;width:100%}
+#kresbig{font-size:5em;margin-bottom:8px;animation:kbounce .65s ease infinite alternate}
+#kresnombre{color:#fff;font-size:1.3em;font-weight:900;margin-bottom:4px}
+#kresdato{background:#fff;color:#2d0066;font-size:2.2em;font-weight:900;padding:14px 36px;border-radius:18px;box-shadow:0 6px 0 rgba(0,0,0,.2);margin:12px 0}
+#kresbroma{background:rgba(255,255,255,.12);border-radius:14px;padding:16px 22px;color:#fff;font-size:1.05em;font-weight:800;max-width:520px;line-height:1.5;margin:10px 0 20px;border-left:4px solid #ffd54f}
+#kbars{width:100%;max-width:540px;margin-bottom:20px}
+.kbrow{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.kblabel{color:rgba(255,255,255,.7);font-size:.8em;font-weight:800;width:30px;text-align:right;flex-shrink:0}
+.kbouter{flex:1;background:rgba(255,255,255,.15);border-radius:16px;height:26px;overflow:hidden}
+.kbinner{height:100%;border-radius:16px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#fff;font-size:.8em;font-weight:900;transition:width 1s ease;min-width:32px}
+.kbok{background:#00c853} .kbno{background:#c62828}
+#kreinbtn{background:#00e676;color:#003300;font-family:'Nunito',sans-serif;font-size:1.3em;font-weight:900;padding:15px 44px;border:none;border-radius:40px;cursor:pointer;box-shadow:0 5px 0 #00a152;transition:transform .1s}
+#kreinbtn:active{transform:translateY(2px)}
+
+@keyframes kbounce{from{transform:translateY(0)}to{transform:translateY(-9px)}}
+@keyframes kpulse{from{transform:scale(1)}to{transform:scale(1.12)}}
+@keyframes kpopin{0%{transform:scale(0)}75%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes kshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+</style>
+
+<div id="kr">
+  <div id="ktop">
+    <div class="klogo">ModOp S5</div>
+    <div id="kpw"><div id="kpb" style="width:0%"></div></div>
+    <div id="ksbadge">0 pts</div>
+  </div>
+
+  <div id="kintro">
+    <h1>Semana 5</h1>
+    <div class="sub">Programacion Lineal</div>
+    <div class="hint">10 preguntas · 20 seg c/u · sin respuestas reveladas</div>
+    <button id="kplaybtn" onclick="kIniciar()">JUGAR</button>
+  </div>
+
+  <div id="kqscreen">
+    <div id="kqmeta">
+      <div id="kqnum">P1 / 10</div>
+      <div id="ktimer">20</div>
+    </div>
+    <div id="kqcard">
+      <div id="kexamtag">Contenido evaluado</div>
+      <div id="kqtxt"></div>
+    </div>
+    <div id="kopts">
+      <button class="kopt oa" id="ko0" onclick="kElegir(0)"><span class="kshp">&#9650;</span><span id="kt0"></span></button>
+      <button class="kopt ob" id="ko1" onclick="kElegir(1)"><span class="kshp">&#9670;</span><span id="kt1"></span></button>
+      <button class="kopt oc" id="ko2" onclick="kElegir(2)"><span class="kshp">&#9679;</span><span id="kt2"></span></button>
+      <button class="kopt od" id="ko3" onclick="kElegir(3)"><span class="kshp">&#9632;</span><span id="kt3"></span></button>
+    </div>
+    <div id="kfb">
+      <div id="kfbico"></div>
+      <div id="kfbtxt"></div>
+      <div id="kpista"></div>
+      <button id="knxtbtn" onclick="kSiguiente()">Siguiente</button>
+    </div>
+  </div>
+
+  <div id="kresult">
+    <div id="kresbig"></div>
+    <div id="kresnombre"></div>
+    <div id="kresdato"></div>
+    <div id="kresbroma"></div>
+    <div id="kbars"></div>
+    <button id="kreinbtn" onclick="kReiniciar()">JUGAR DE NUEVO</button>
+  </div>
+</div>
+
+<script>
+const KQ=[
+  {t:"La forma CANONICA de un PPL tiene:",
+   o:["Igualdades (=) y variables de holgura","Solo restricciones de no negatividad","Desigualdades (menor igual)","Ecuaciones con pivot"],
+   c:2,ex:false,
+   pok:"Correcto! Sigue asi, vas con buen ritmo.",
+   pmal:"Pista: piensa en la forma ORIGINAL del problema, antes de agregar nada nuevo a las restricciones."},
+  {t:"La forma ESTANDAR tiene igualdades. Las variables que se agregan al convertir inecuaciones en ecuaciones se llaman:",
+   o:["Variables de convergencia","Variables de holgura","Variables artificiales","Variables pivot"],
+   c:1,ex:true,
+   pok:"Excelente! Esa es la clave para pasar al Simplex.",
+   pmal:"Pista: su nombre viene de 'espacio sobrante' — representan los recursos que NO se usaron."},
+  {t:"El metodo GRAFICO solo funciona con ___ variables de decision:",
+   o:["Tres","Cuatro o mas","Dos","Sin limite"],
+   c:2,ex:true,
+   pok:"Boom! El plano 2D solo admite dos variables.",
+   pmal:"Pista: piensa en cuantas dimensiones necesitas para graficar. Un plano tiene exactamente ___ ejes."},
+  {t:"Las ecuaciones del Simplex ALGEBRAICO y las tablas del metodo TABULAR son:",
+   o:["Diferentes en resultado","Equidistantes","Equivalentes","Complementarias"],
+   c:2,ex:true,
+   pok:"Correcto! Misma informacion, diferente presentacion.",
+   pmal:"Pista: si dos metodos resuelven lo mismo paso a paso... la relacion entre sus resultados es..."},
+  {t:"El Simplex se usa cuando el problema tiene MAS DE DOS restricciones o variables. Verdadero o falso?",
+   o:["Falso — solo con exactamente dos","Verdadero","Solo si hay variables de holgura","Falso — el grafico lo puede hacer"],
+   c:1,ex:true,
+   pok:"Si! Para eso nacio el Simplex: problemas grandes.",
+   pmal:"Pista: cuando el metodo grafico ya no alcanza por tener demasiadas variables, usamos..."},
+  {t:"La forma ___ tiene DESIGUALDADES:",
+   o:["Estandar","Simplex","Canonica","Tabular"],
+   c:2,ex:true,
+   pok:"Muy bien! Canonica = desigualdades. Grabalo.",
+   pmal:"Pista: CANO-nica suena a 'canon', lo original. La forma original del problema tenia desigualdades o igualdades?"},
+  {t:"La forma ___ tiene IGUALDADES:",
+   o:["Canonica","Grafica","Estandar","Factible"],
+   c:2,ex:true,
+   pok:"Perfecto! Estandar = igualdades. Ya tienes el par completo.",
+   pmal:"Pista: la forma que le agrega ESTANDARIZACION (variables de holgura) para poder aplicar el Simplex se llama..."},
+  {t:"El NO ACOTAMIENTO significa que:",
+   o:["Hay muchas soluciones optimas","La funcion objetivo crece sin limite","Una variable basica vale cero","El algoritmo cicla"],
+   c:1,ex:false,
+   pok:"Asi es! Z va hacia infinito. No hay optimo finito.",
+   pmal:"Pista: 'no acotado' = sin limite = Z puede seguir subiendo (o bajando) para siempre."},
+  {t:"La DEGENERACION ocurre cuando:",
+   o:["Z crece indefinidamente","No hay region factible","Una variable BASICA vale CERO","Las restricciones se contradicen"],
+   c:2,ex:false,
+   pok:"Correcto! Variable basica = 0. Z no mejora pero el algoritmo sigue.",
+   pmal:"Pista: el nombre viene de que la solucion 'degenera' — una variable que deberia tener valor lo tiene en..."},
+  {t:"El Simplex SIEMPRE converge porque:",
+   o:["Z siempre mejora estrictamente","El numero de vertices es FINITO","Solo trabaja con regiones acotadas","Las holguras garantizan convergencia"],
+   c:1,ex:false,
+   pok:"Excelente! Finitos vertices = finitas iteraciones = siempre termina.",
+   pmal:"Pista: si el numero de pasos posibles es limitado y no se repiten, el proceso tiene que... terminar."}
+];
+
+const BROMAS=[
+  {min:9,ico:"trophy",txt:"Campeon absoluto. Hasta el Profe Fausto te pide apuntes. Seguro ya le pusiste nombre al metodo Simplex: 'El metodo Tuyo'."},
+  {min:7,ico:"star",txt:"Muy bien! Dominaste la teoria. Solo le falta practicar un poquito mas y sera el terror de los examenes."},
+  {min:5,ico:"mood-smile",txt:"Pasable. Aprobo, pero apenas. El Simplex todavia le da mas miedo que la forma estandar... que ya es decir bastante."},
+  {min:3,ico:"mood-sad",txt:"Mmmm. Parece que estudio la semana pasada... de hace dos semanas. Las variables de holgura tienen mas claridad que usted hoy."},
+  {min:0,ico:"mood-crazy",txt:"Esto es historico. Consiguio menos de 3/10 en un quiz con pistas. El no-acotamiento que estudio hoy es lo unico que no tiene limite: su creatividad para adivinar mal."}
+];
+
+let kActual=0,kPts=0,kTmr=null,kSegs=20,kResp=false,kHist=[],kOrden=[];
+
+const $=id=>document.getElementById(id);
+
+function kShuffle(a){return[...a].sort(()=>Math.random()-.5)}
+
+function kIniciar(){
+  $('kintro').style.display='none';
+  $('kqscreen').style.display='flex';
+  kCargar();
+}
+
+function kCargar(){
+  kResp=false;
+  const q=KQ[kActual];
+  $('kpb').style.width=Math.round((kActual/KQ.length)*100)+'%';
+  $('kqnum').textContent='P'+(kActual+1)+' / '+KQ.length;
+  $('kqtxt').textContent=q.t;
+  $('kexamtag').style.display=q.ex?'inline-block':'none';
+  const idx=[0,1,2,3];
+  kOrden=kShuffle(idx);
+  kOrden.forEach((oi,pos)=>{
+    $('kt'+pos).textContent=q.o[oi];
+    const btn=$('ko'+pos);
+    btn.className='kopt '+['oa','ob','oc','od'][pos];
+    btn.disabled=false;
+    btn.style.opacity='1';
+  });
+  $('kfb').style.display='none';
+  $('kopts').style.display='grid';
+  const tim=$('ktimer');
+  tim.className='';
+  tim.style.background='#fff';
+  tim.style.color='#2d0066';
+  kSegs=20;
+  tim.textContent=20;
+  clearInterval(kTmr);
+  kTmr=setInterval(()=>{
+    kSegs--;
+    tim.textContent=kSegs;
+    if(kSegs<=5){tim.classList.add('urgente')}
+    if(kSegs<=0){clearInterval(kTmr);if(!kResp)kRevelar(-1);}
+  },1000);
+}
+
+function kElegir(pos){
+  if(kResp)return;
+  clearInterval(kTmr);
+  kRevelar(pos);
+}
+
+function kRevelar(pos){
+  kResp=true;
+  const q=KQ[kActual];
+  const elegidoOrig=pos>=0?kOrden[pos]:-1;
+  const ok=elegidoOrig===q.c;
+  const pts=ok?Math.max(100,Math.round(1000*(kSegs/20))):0;
+  kPts+=pts;
+  kHist.push({ok,pregunta:kActual});
+  $('ksbadge').textContent=kPts+' pts';
+  [0,1,2,3].forEach(p=>{
+    const btn=$('ko'+p);
+    btn.disabled=true;
+    if(p===pos&&!ok){
+      btn.classList.add('kwrong');
+      btn.classList.add('kshake');
+    } else if(p!==pos){
+      btn.style.opacity='.4';
+    }
+  });
+  const fb=$('kfb');
+  fb.style.display='flex';
+  if(pos===-1){
+    $('kfbico').textContent='⏰';
+    $('kfbtxt').textContent='Tiempo agotado!';
+    $('kpista').textContent=q.pmal;
+  } else if(ok){
+    $('kfbico').textContent='🎉';
+    $('kfbtxt').textContent='+'+pts+' puntos!';
+    $('kpista').textContent=q.pok;
+  } else {
+    $('kfbico').textContent='❌';
+    $('kfbtxt').textContent='No fue esa...';
+    $('kpista').textContent=q.pmal;
+  }
+  $('knxtbtn').textContent=kActual<KQ.length-1?'Siguiente →':'Ver resultado';
+}
+
+function kSiguiente(){
+  kActual++;
+  $('kfb').style.display='none';
+  if(kActual<KQ.length) kCargar();
+  else kResultado();
+}
+
+function kResultado(){
+  clearInterval(kTmr);
+  $('kqscreen').style.display='none';
+  $('kpb').style.width='100%';
+  const res=$('kresult');
+  res.style.display='flex';
+  const correctas=kHist.filter(h=>h.ok).length;
+  const pct=Math.round((correctas/KQ.length)*100);
+  const broma=BROMAS.find(b=>correctas>=b.min)||BROMAS[BROMAS.length-1];
+  let icono,titulo;
+  if(pct>=90){icono='🏆';titulo='Campeon!';}
+  else if(pct>=70){icono='🥇';titulo='Muy bien!';}
+  else if(pct>=50){icono='🥈';titulo='Pasaste!';}
+  else if(pct>=30){icono='😅';titulo='Hay que estudiar...';}
+  else{icono='💀';titulo='Historico (de los malos)!';}
+  $('kresbig').textContent=icono;
+  $('kresnombre').textContent=titulo;
+  $('kresdato').textContent=kPts+' pts  ·  '+correctas+'/'+KQ.length+' correctas';
+  $('kresbroma').textContent='"'+broma.txt+'"';
+  const bars=$('kbars');
+  bars.innerHTML='';
+  KQ.forEach((_,i)=>{
+    const h=kHist[i];
+    const ok=h&&h.ok;
+    const row=document.createElement('div');
+    row.className='kbrow';
+    row.innerHTML='<div class="kblabel">P'+(i+1)+'</div><div class="kbouter"><div class="kbinner '+(ok?'kbok':'kbno')+'" style="width:0%">'+(ok?'correcta':'falló')+'</div></div>';
+    bars.appendChild(row);
+    setTimeout(()=>{row.querySelector('.kbinner').style.width=ok?'100%':'55%';},150+i*70);
+  });
+}
+
+function kReiniciar(){
+  kActual=0;kPts=0;kHist=[];kResp=false;
+  $('ksbadge').textContent='0 pts';
+  $('kpb').style.width='0%';
+  $('kresult').style.display='none';
+  $('kintro').style.display='flex';
+}
+</script>
