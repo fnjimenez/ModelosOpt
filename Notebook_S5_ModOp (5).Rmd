@@ -1,0 +1,657 @@
+---
+title: "Modelos de Optimización — Semana 5"
+subtitle: "Programación Lineal: Formas, Método Gráfico y Simplex Completo"
+author: "Prof. Fausto Noé Jiménez | SABES Campus San Felipe"
+date: "Del 9 al 16 de junio de 2026"
+output:
+  html_document:
+    theme: flatly
+    highlight: tango
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    toc_depth: 3
+    code_folding: hide
+    number_sections: false
+    css: |
+      body { font-family: 'Segoe UI', Arial, sans-serif; }
+      h1 { color: #003087; border-bottom: 3px solid #FFD100; padding-bottom: 8px; }
+      h2 { color: #003087; border-left: 5px solid #FFD100; padding-left: 10px; }
+      h3 { color: #005EB8; }
+      .sabes-box {
+        background: #003087; color: white;
+        border-radius: 8px; padding: 16px 20px; margin: 16px 0;
+        border-left: 6px solid #FFD100;
+      }
+      .sabes-box p { color: white; margin: 0; }
+      .tip-box {
+        background: #FFF9E6; border-left: 5px solid #FFD100;
+        border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 14px 0;
+      }
+      .alert-box {
+        background: #E8F0FE; border-left: 5px solid #005EB8;
+        border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 14px 0;
+      }
+      .step-box {
+        background: #F0F4FF; border: 2px solid #003087;
+        border-radius: 8px; padding: 14px 18px; margin: 10px 0;
+      }
+      .step-num {
+        background: #003087; color: #FFD100;
+        font-weight: bold; font-size: 1.1em;
+        border-radius: 50%; width: 32px; height: 32px;
+        display: inline-flex; align-items: center; justify-content: center;
+        margin-right: 8px;
+      }
+      table { border-collapse: collapse; width: 100%; margin: 14px 0; }
+      th { background: #003087; color: #FFD100; padding: 10px 14px; }
+      td { padding: 8px 14px; border: 1px solid #ddd; }
+      tr:nth-child(even) td { background: #F5F7FF; }
+      tr.critica td { background: #FFF3CD; font-weight: bold; }
+      tr.optima td { background: #D4EDDA; font-weight: bold; }
+      .badge-amarillo {
+        background: #FFD100; color: #003087; font-weight: bold;
+        border-radius: 12px; padding: 3px 12px; font-size: .85em;
+      }
+      .badge-azul {
+        background: #003087; color: white; font-weight: bold;
+        border-radius: 12px; padding: 3px 12px; font-size: .85em;
+      }
+      blockquote {
+        border-left: 4px solid #FFD100; background: #FFFBF0;
+        padding: 10px 16px; margin: 12px 0; border-radius: 0 6px 6px 0;
+      }
+      .tabla-simplex th.pivot { background: #C62828; color: white; }
+      .tabla-simplex td.pivot { background: #FFCDD2; font-weight: bold; }
+      .tabla-simplex tr.optima td { background: #E8F5E9; }
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE, fig.align="center")
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+```
+
+```{r funciones-aux, echo=FALSE}
+sabes_tabla <- function(df, cap="", pivot_col=NULL, optima=FALSE) {
+  kb <- kable(df, caption=cap, align="c") %>%
+    kable_styling(bootstrap_options=c("striped","hover","bordered"),
+                  full_width=TRUE, font_size=15) %>%
+    row_spec(0, background="#003087", color="#FFD100", bold=TRUE)
+  if (!is.null(pivot_col))
+    kb <- kb %>% column_spec(pivot_col, background="#FFCDD2", bold=TRUE)
+  if (optima)
+    kb <- kb %>% row_spec(nrow(df), background="#D4EDDA", bold=TRUE)
+  kb
+}
+```
+
+<div class="sabes-box">
+<p><strong>Universidad del SABES — Campus San Felipe</strong></p>
+<p>Modelos de Optimización | Semana 5 | Mayo–Agosto 2026 | Prof. Fausto Noé Jiménez</p>
+</div>
+
+---
+
+# Introducción
+
+Un **Problema de Programación Lineal (PPL)** busca el mejor valor posible de una función objetivo sujeta a restricciones lineales:
+
+$$\text{Maximizar (o Minimizar) } Z = c_1x_1 + c_2x_2 + \cdots + c_nx_n$$
+
+Esta semana aprenderemos tres herramientas para resolverlos: las formas del modelo, el método gráfico y el método Simplex completo.
+
+---
+
+# 3.1 Formas Estándar y Canónica
+
+## Forma Canónica
+
+<div class="alert-box">
+<strong>Forma CANÓNICA:</strong> las restricciones se expresan como <strong>desigualdades (≤)</strong>. Es la forma original del problema antes de cualquier transformación.
+</div>
+
+$$a_{i1}x_1 + a_{i2}x_2 + \cdots + a_{in}x_n \leq b_i$$
+
+## Forma Estándar
+
+<div class="tip-box">
+<strong>Forma ESTÁNDAR:</strong> las restricciones se convierten en <strong>igualdades (=)</strong> agregando <strong>variables de holgura</strong> $s_i \geq 0$.
+</div>
+
+$$a_{i1}x_1 + \cdots + a_{in}x_n + s_i = b_i$$
+
+## ¿Cuántas variables de holgura se agregan?
+
+<div class="sabes-box">
+<p><strong>Regla:</strong> se agrega UNA variable de holgura por cada restricción de desigualdad (≤).</p>
+<p>m restricciones → m variables de holgura (s₁, s₂, ..., sₘ)</p>
+</div>
+
+```{r tabla-holgura, echo=FALSE}
+df_hol <- data.frame(
+  No. = c(1,2,3),
+  Forma_Canonica = c("6x₁ + 4x₂ ≤ 24","x₁ + 2x₂ ≤ 6","3x₁ + x₂ ≤ 12"),
+  Variable_Holgura = c("s₁","s₂","s₃"),
+  Forma_Estandar = c("6x₁ + 4x₂ + s₁ = 24","x₁ + 2x₂ + s₂ = 6","3x₁ + x₂ + s₃ = 12")
+)
+sabes_tabla(df_hol, "Una variable de holgura por cada restricción")
+```
+
+Las variables de holgura tienen coeficiente **cero** en la función objetivo y representan recursos **no utilizados** ($s_i \geq 0$).
+
+## Comparación de formas
+
+```{r tabla-formas, echo=FALSE}
+df_comp <- data.frame(
+  Característica = c("Tipo de restricciones","Variables adicionales","Uso principal","Punto de partida"),
+  Forma_Canónica = c("Desigualdades (≤)","No se agregan","Método gráfico","Forma original"),
+  Forma_Estándar = c("Igualdades (=)","Sí: variables de holgura sᵢ ≥ 0","Método Simplex","Se deriva de la canónica")
+)
+sabes_tabla(df_comp, "Comparación Forma Canónica vs Forma Estándar")
+```
+
+## Variables sin restricción de signo
+
+Si $x_j$ puede ser negativa, se sustituye: $x_j = x_j^+ - x_j^-$, con $x_j^+, x_j^- \geq 0$.
+
+---
+
+# 3.2 Método Gráfico
+
+<div class="sabes-box">
+<p><strong>Condición de aplicabilidad:</strong> el método gráfico SOLO funciona con exactamente DOS variables de decisión. Con más variables no se puede graficar en el plano 2D.</p>
+</div>
+
+## Pasos del método
+
+```{r pasos-grafico, echo=FALSE}
+df_pasos <- data.frame(
+  Paso = c("1","2","3","4"),
+  Acción = c(
+    "Graficar cada restricción como una recta en el plano x₁-x₂",
+    "Identificar la región factible (área que cumple TODAS las restricciones)",
+    "Localizar los vértices de la región factible",
+    "Evaluar Z en cada vértice — el mayor (o menor) es la solución óptima"
+  )
+)
+sabes_tabla(df_pasos, "Pasos del Método Gráfico")
+```
+
+## Ejemplo resuelto — Empresa de muebles
+
+**Problema:** Maximizar ganancia fabricando mesas ($x_1$) y sillas ($x_2$):
+
+$$\text{Max } Z = 5x_1 + 4x_2$$
+$$6x_1 + 4x_2 \leq 24 \quad \text{(horas carpintería)}$$
+$$x_1 + 2x_2 \leq 6 \quad \text{(horas acabado)}$$
+$$x_1, x_2 \geq 0$$
+
+```{r metodo-grafico, fig.width=8, fig.height=6}
+vertices <- data.frame(
+  x1 = c(0, 0, 3, 4),
+  x2 = c(0, 3, 1.5, 0)
+)
+vertices$Z     <- 5*vertices$x1 + 4*vertices$x2
+vertices$Label <- c("A","B","C","D")
+
+cat("Evaluación de Z en cada vértice:\n")
+print(vertices[,c("Label","x1","x2","Z")])
+idx_opt <- which.max(vertices$Z)
+cat(paste0("\nSOLUCIÓN ÓPTIMA: Vértice ", vertices$Label[idx_opt],
+           " = (", vertices$x1[idx_opt], ", ", vertices$x2[idx_opt],
+           ")  →  Z = ", vertices$Z[idx_opt], "\n"))
+
+x_v <- seq(0, 5.5, 0.01)
+df_r <- rbind(
+  data.frame(x1=x_v, x2=pmax(0,(24-6*x_v)/4), res="6x1+4x2 = 24"),
+  data.frame(x1=x_v, x2=pmax(0,(6-x_v)/2),    res="x1+2x2 = 6")
+)
+region <- data.frame(x1=c(0,0,3,4,0), x2=c(0,3,1.5,0,0))
+opt    <- vertices[idx_opt,]
+
+ggplot() +
+  geom_polygon(data=region, aes(x1,x2),
+               fill="#003087", alpha=0.15) +
+  geom_line(data=df_r, aes(x1,x2,color=res), size=1.4, na.rm=TRUE) +
+  geom_point(data=vertices, aes(x1,x2),
+             size=4, color="#003087") +
+  geom_label(data=vertices,
+             aes(x1,x2,
+                 label=paste0(Label,"\n(",x1,",",x2,")\nZ=",Z)),
+             size=3.2, vjust=-0.2, fill="white",
+             color="#003087", fontface="bold", label.padding=unit(0.3,"lines")) +
+  geom_point(data=opt, aes(x1,x2),
+             size=7, color="#FFD100", shape=8, stroke=2) +
+  scale_color_manual(values=c("#003087","#C62828")) +
+  labs(title="Método Gráfico — Región Factible y Vértices",
+       subtitle=paste0("Solución óptima: Vértice C = (3, 1.5)  →  Z = 21"),
+       x="x1 (mesas)", y="x2 (sillas)", color="Restricción") +
+  xlim(0,5.5) + ylim(0,4.5) +
+  theme_minimal(base_size=14) +
+  theme(
+    plot.title    = element_text(color="#003087", face="bold", size=15),
+    plot.subtitle = element_text(color="#C62828", face="bold"),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+```
+
+**Solución óptima:** $x_1 = 3$ mesas, $x_2 = 1.5$ sillas, **Z máx = \$21**
+
+---
+
+## Cómo graficar en GeoGebra Online
+
+Abre **[GeoGebra Clásico](https://www.geogebra.org/classic?lang=es)** y sigue estos pasos:
+
+```{r pasos-geogebra, echo=FALSE}
+df_geo <- data.frame(
+  Paso = 1:5,
+  Qué_escribir_en_Barra_de_Entrada = c(
+    "f(x) = (24 - 6x) / 4",
+    "g(x) = (6 - x) / 2",
+    "A=(0,0)   B=(0,3)   C=(3,1.5)   D=(4,0)",
+    "Z(x,y) = 5x + 4y   luego evalúa: Z(0,0)  Z(0,3)  Z(3,1.5)  Z(4,0)",
+    "6x+4y<=24   y   x+2y<=6   y   y>=0   y   x>=0"
+  ),
+  Para_qué = c(
+    "Grafica la recta de la restricción 1",
+    "Grafica la recta de la restricción 2",
+    "Marca los 4 vértices de la región factible",
+    "Define Z y evalúa en cada vértice",
+    "Sombrea la región factible (clic derecho → color)"
+  )
+)
+sabes_tabla(df_geo, "Instrucciones paso a paso en GeoGebra")
+```
+
+<div class="tip-box">
+<strong>Resultado en GeoGebra:</strong> Z(0,0)=0 | Z(0,3)=12 | <strong>Z(3,1.5)=21 ← ÓPTIMO</strong> | Z(4,0)=20
+</div>
+
+---
+
+# 3.3 Método Simplex — Solución Completa Paso a Paso
+
+<div class="sabes-box">
+<p><strong>¿Cuándo usar Simplex?</strong> Cuando el problema tiene más de 2 variables o restricciones y ya no se puede graficar. Las ecuaciones algebraicas y las tablas del método tabular son EQUIVALENTES.</p>
+</div>
+
+## Problema ejemplo completo
+
+**Empresa manufacturera** — Maximizar:
+
+$$Z = 5x_1 + 4x_2 + 3x_3$$
+
+Sujeto a:
+
+$$6x_1 + 4x_2 + 2x_3 \leq 240 \quad (1)$$
+$$3x_1 + 2x_2 + 5x_3 \leq 270 \quad (2)$$
+$$5x_1 + 6x_2 + 5x_3 \leq 420 \quad (3)$$
+$$x_1, x_2, x_3 \geq 0$$
+
+---
+
+## PASO 1 — Convertir a Forma Estándar
+
+3 restricciones → agregar **3 variables de holgura** ($s_1, s_2, s_3$):
+
+$$Z = 5x_1 + 4x_2 + 3x_3 + 0s_1 + 0s_2 + 0s_3$$
+
+$$6x_1 + 4x_2 + 2x_3 + s_1 = 240$$
+$$3x_1 + 2x_2 + 5x_3 + s_2 = 270$$
+$$5x_1 + 6x_2 + 5x_3 + s_3 = 420$$
+
+```{r paso1, echo=FALSE}
+cat("Solución básica INICIAL (variables no básicas = 0):\n")
+cat("  x1=0, x2=0, x3=0\n")
+cat("  s1=240, s2=270, s3=420\n")
+cat("  Z = 0\n")
+cat("\nTodas las holguras están en la BASE — ningún recurso se ha usado aún.\n")
+```
+
+---
+
+## PASO 2 — Tabla Inicial (Iteración 0)
+
+```{r tabla-iter0, echo=FALSE}
+df0 <- data.frame(
+  Base=c("s1","s2","s3","Z"),
+  x1=c(6,3,5,-5), x2=c(4,2,6,-4), x3=c(2,5,5,-3),
+  s1=c(1,0,0,0), s2=c(0,1,0,0), s3=c(0,0,1,0),
+  LD=c(240,270,420,0)
+)
+kable(df0, col.names=c("Base","x1","x2","x3","s1","s2","s3","LD"),
+      align="c", caption="Tabla Simplex — Iteración 0 (Z = 0)") %>%
+  kable_styling(bootstrap_options=c("striped","hover","bordered"),
+                full_width=TRUE, font_size=15) %>%
+  row_spec(0, background="#003087", color="#FFD100", bold=TRUE) %>%
+  column_spec(2, background="#FFCDD2", bold=TRUE) %>%
+  row_spec(4, background="#FFF3CD", bold=TRUE)
+```
+
+<div class="step-box">
+<span class="step-num">A</span> <strong>Identificar variable ENTRANTE:</strong> columna con mayor valor positivo en |fila Z| → <strong>x1 (coef = 5)</strong>
+</div>
+
+<div class="step-box">
+<span class="step-num">B</span> <strong>Prueba de razón mínima</strong> (solo filas con coef > 0 en columna pivote):
+</div>
+
+```{r razon-minima-0, echo=FALSE}
+df_razon <- data.frame(
+  Fila=c("s1","s2","s3"),
+  LD=c(240,270,420),
+  Coef_x1=c(6,3,5),
+  Razon=c("240/6 = 40","270/3 = 90","420/5 = 84")
+)
+kable(df_razon, col.names=c("Fila","LD","Coef. x1","Razón LD/Coef"),
+      align="c", caption="Prueba de razón mínima — Iteración 0") %>%
+  kable_styling(bootstrap_options=c("striped","bordered"),
+                full_width=FALSE, font_size=15) %>%
+  row_spec(0, background="#003087", color="#FFD100", bold=TRUE) %>%
+  row_spec(1, background="#D4EDDA", bold=TRUE)
+```
+
+<div class="tip-box">
+<strong>Razón mínima = 40 (fila s1)</strong> → <strong>s1 sale de la base</strong>, x1 entra. El elemento PIVOTE es 6 (fila s1, columna x1).
+</div>
+
+---
+
+## PASO 3 — Operaciones de Pivoteo (Iter. 0 → Iter. 1)
+
+**Operación pivote:** el elemento pivote es **6** (fila s1, columna x1).
+
+```{r pivoteo-iter1, echo=FALSE}
+cat("Nueva fila x1 = fila s1 / 6:\n")
+cat("  [6,4,2,1,0,0,240] / 6 = [1, 2/3, 1/3, 1/6, 0, 0, 40]\n\n")
+cat("Actualizar fila s2: fila s2 - 3*(nueva fila x1):\n")
+cat("  [3,2,5,0,1,0,270] - 3*[1,2/3,1/3,1/6,0,0,40]\n")
+cat("  = [0, 0, 4, -1/2, 1, 0, 150]\n\n")
+cat("Actualizar fila s3: fila s3 - 5*(nueva fila x1):\n")
+cat("  [5,6,5,0,0,1,420] - 5*[1,2/3,1/3,1/6,0,0,40]\n")
+cat("  = [0, 8/3, 10/3, -5/6, 0, 1, 220]\n\n")
+cat("Actualizar fila Z: fila Z + 5*(nueva fila x1):\n")
+cat("  [-5,-4,-3,0,0,0,0] + 5*[1,2/3,1/3,1/6,0,0,40]\n")
+cat("  = [0, -2/3, -4/3, 5/6, 0, 0, 200]\n")
+```
+
+---
+
+## PASO 4 — Tabla Iteración 1
+
+```{r tabla-iter1, echo=FALSE}
+df1 <- data.frame(
+  Base=c("x1","s2","s3","Z"),
+  x1=c(1,0,0,0),
+  x2=c(round(2/3,4),0,round(8/3,4),round(-2/3,4)),
+  x3=c(round(1/3,4),4,round(10/3,4),round(-4/3,4)),
+  s1=c(round(1/6,4),round(-1/2,4),round(-5/6,4),round(5/6,4)),
+  s2=c(0,1,0,0),
+  s3=c(0,0,1,0),
+  LD=c(40,150,220,200)
+)
+kable(df1, col.names=c("Base","x1","x2","x3","s1","s2","s3","LD"),
+      align="c", caption="Tabla Simplex — Iteración 1 (Z = 200)") %>%
+  kable_styling(bootstrap_options=c("striped","hover","bordered"),
+                full_width=TRUE, font_size=15) %>%
+  row_spec(0, background="#003087", color="#FFD100", bold=TRUE) %>%
+  column_spec(4, background="#FFCDD2", bold=TRUE) %>%
+  row_spec(4, background="#FFF3CD", bold=TRUE)
+```
+
+<div class="step-box">
+<span class="step-num">A</span> <strong>¿Hay coeficientes negativos en fila Z?</strong> Sí: x2 = -2/3, x3 = -4/3 → el mayor en valor absoluto es <strong>x3 (-4/3)</strong> → x3 ENTRA.
+</div>
+
+```{r razon-minima-1, echo=FALSE}
+df_r1 <- data.frame(
+  Fila=c("x1","s2","s3"),
+  LD=c(40,150,220),
+  Coef_x3=c(round(1/3,4),4,round(10/3,4)),
+  Razon=c(paste0("40/(1/3) = ",round(40/(1/3),1)),
+          paste0("150/4 = 37.5"),
+          paste0("220/(10/3) = ",round(220/(10/3),1)))
+)
+kable(df_r1, col.names=c("Fila","LD","Coef. x3","Razón LD/Coef"),
+      align="c", caption="Prueba de razón mínima — Iteración 1") %>%
+  kable_styling(bootstrap_options=c("striped","bordered"),
+                full_width=FALSE, font_size=15) %>%
+  row_spec(0, background="#003087", color="#FFD100", bold=TRUE) %>%
+  row_spec(2, background="#D4EDDA", bold=TRUE)
+```
+
+<div class="tip-box">
+<strong>Razón mínima = 37.5 (fila s2)</strong> → <strong>s2 sale de la base</strong>, x3 entra. Pivote = 4.
+</div>
+
+---
+
+## PASO 5 — Tabla Iteración 2
+
+```{r tabla-iter2, echo=FALSE}
+p <- 4
+nf_x3 <- c(0, 1, round(5/4,4), round(-1/8,4), round(1/4,4), 0, round(150/4,2))
+f_x1  <- c(1, round(2/3,4), round(1/3,4), round(1/6,4), 0, 0, 40)
+f_s3  <- c(0, round(8/3,4), round(10/3,4), round(-5/6,4), 0, 1, 220)
+f_Z   <- c(0, round(-2/3,4), round(-4/3,4), round(5/6,4), 0, 0, 200)
+
+nf_x1 <- f_x1 - (f_x1[3])*nf_x3
+nf_s3 <- f_s3 - (f_s3[3])*nf_x3
+nf_Z  <- f_Z  - (f_Z[3]) *nf_x3
+
+df2 <- data.frame(
+  Base=c("x1","x3","s3","Z"),
+  x1=round(c(nf_x1[1],nf_x3[1],nf_s3[1],nf_Z[1]),4),
+  x2=round(c(nf_x1[2],nf_x3[2],nf_s3[2],nf_Z[2]),4),
+  x3=round(c(nf_x1[3],nf_x3[3],nf_s3[3],nf_Z[3]),4),
+  s1=round(c(nf_x1[4],nf_x3[4],nf_s3[4],nf_Z[4]),4),
+  s2=round(c(nf_x1[5],nf_x3[5],nf_s3[5],nf_Z[5]),4),
+  s3=round(c(nf_x1[6],nf_x3[6],nf_s3[6],nf_Z[6]),4),
+  LD=round(c(nf_x1[7],nf_x3[7],nf_s3[7],nf_Z[7]),2)
+)
+kable(df2, col.names=c("Base","x1","x2","x3","s1","s2","s3","LD"),
+      align="c", caption="Tabla Simplex — Iteración 2") %>%
+  kable_styling(bootstrap_options=c("striped","hover","bordered"),
+                full_width=TRUE, font_size=15) %>%
+  row_spec(0, background="#003087", color="#FFD100", bold=TRUE) %>%
+  row_spec(4, background="#FFF3CD", bold=TRUE)
+```
+
+```{r check-iter2, echo=FALSE}
+cat("Fila Z iteración 2:\n")
+cat(paste0("  x2 = ", round(nf_Z[2],4), "\n"))
+cat(paste0("  Z  = ", round(nf_Z[7],2), "\n\n"))
+
+if(all(nf_Z[1:6] >= -1e-9)) {
+  cat(">> Todos los coeficientes de Z >= 0  →  SOLUCIÓN ÓPTIMA ALCANZADA\n")
+} else {
+  cat(">> Aún hay negativos en Z → continuar iterando\n")
+  cat("   Negativos:", paste(names(df2)[which(nf_Z[1:6]< -1e-9)+1], collapse=", "), "\n")
+}
+```
+
+---
+
+## PASO 6 — Verificar Optimalidad
+
+<div class="step-box">
+<strong>Criterio de optimalidad:</strong> el algoritmo Simplex termina cuando TODOS los coeficientes de la fila Z son ≥ 0 (en maximización). En ese momento la solución actual es la óptima.
+</div>
+
+```{r tabla-optima, echo=FALSE}
+df_opt <- data.frame(
+  Variable=c("x1","x2","x3","s1","s2","s3"),
+  Coef_fila_Z=round(nf_Z[1:6],4),
+  Estado=ifelse(round(nf_Z[1:6],4)>=0,"≥ 0 ✓","< 0 ✗")
+)
+kable(df_opt, col.names=c("Variable","Coeficiente en fila Z","¿Óptimo?"),
+      align="c", caption="Verificación de optimalidad — Iteración 2") %>%
+  kable_styling(bootstrap_options=c("striped","bordered"),
+                full_width=FALSE, font_size=15) %>%
+  row_spec(0, background="#003087", color="#FFD100", bold=TRUE) %>%
+  row_spec(which(round(nf_Z[1:6],4)>=0),
+           background="#D4EDDA")
+```
+
+---
+
+## PASO 7 — Leer la Solución Óptima
+
+```{r solucion-final, echo=FALSE}
+x1_opt <- round(nf_x1[7],4)
+x3_opt <- round(nf_x3[7],4)
+s3_opt <- round(nf_s3[7],4)
+Z_opt  <- round(nf_Z[7],2)
+
+df_sol <- data.frame(
+  Variable=c("x1","x2","x3","s1","s2","s3","Z"),
+  Valor=c(x1_opt, 0, x3_opt, 0, 0, s3_opt, Z_opt),
+  Interpretacion=c(
+    "Unidades del producto 1 a fabricar",
+    "No se fabrica (no es rentable en este óptimo)",
+    "Unidades del producto 3 a fabricar",
+    "Recurso 1 agotado (holgura = 0)",
+    "Recurso 2 agotado (holgura = 0)",
+    paste0(round(s3_opt,1)," unidades del recurso 3 sin usar"),
+    "GANANCIA MÁXIMA"
+  )
+)
+kable(df_sol, col.names=c("Variable","Valor Óptimo","Interpretación"),
+      align=c("c","c","l"),
+      caption="Solución Óptima Final") %>%
+  kable_styling(bootstrap_options=c("striped","hover","bordered"),
+                full_width=TRUE, font_size=15) %>%
+  row_spec(0, background="#003087", color="#FFD100", bold=TRUE) %>%
+  row_spec(nrow(df_sol), background="#D4EDDA", bold=TRUE)
+```
+
+<div class="sabes-box">
+<p><strong>Solución Óptima:</strong> x1 = 27.5, x2 = 0, x3 = 37.5 → Z máximo = 250</p>
+<p>Se usan completamente los recursos 1 y 2 (s1=0, s2=0). Quedan 220−125=95 unidades del recurso 3 sin utilizar.</p>
+</div>
+
+---
+
+## Resumen del proceso Simplex
+
+```{r resumen-simplex, echo=FALSE}
+df_res <- data.frame(
+  Iteracion=c("0 (inicial)","1","2 (óptima)"),
+  Base=c("s1, s2, s3","x1, s2, s3","x1, x3, s3"),
+  Z=c(0,200,round(Z_opt,2)),
+  Variable_entra=c("x1","x3","—"),
+  Variable_sale=c("s1","s2","—")
+)
+kable(df_res, col.names=c("Iteración","Variables en Base","Z","Entra","Sale"),
+      align="c", caption="Historial de iteraciones del Simplex") %>%
+  kable_styling(bootstrap_options=c("striped","hover","bordered"),
+                full_width=TRUE, font_size=15) %>%
+  row_spec(0, background="#003087", color="#FFD100", bold=TRUE) %>%
+  row_spec(3, background="#D4EDDA", bold=TRUE)
+```
+
+```{r convergencia-plot, fig.width=7, fig.height=4}
+iters <- data.frame(
+  iter=0:2,
+  Z=c(0, 200, round(Z_opt,2)),
+  lab=c("Inicio\nZ=0","Iter 1\nx1 entra\nZ=200",paste0("ÓPTIMO\nZ=",round(Z_opt,2)))
+)
+ggplot(iters, aes(iter,Z)) +
+  geom_line(color="#003087", size=2) +
+  geom_point(size=7, color="#003087") +
+  geom_point(data=iters[3,], aes(iter,Z), size=9,
+             color="#FFD100", shape=8, stroke=3) +
+  geom_label(aes(label=lab), vjust=-0.4, size=3.5,
+             fill="white", color="#003087", fontface="bold",
+             label.padding=unit(0.3,"lines")) +
+  scale_x_continuous(breaks=0:2, labels=c("Iter 0","Iter 1","Iter 2")) +
+  labs(title="Convergencia del Método Simplex",
+       subtitle="Z mejora en cada iteración hasta alcanzar el óptimo",
+       x="", y="Valor de Z") +
+  ylim(-30, round(Z_opt*1.25)) +
+  theme_minimal(base_size=14) +
+  theme(
+    plot.title    = element_text(color="#003087", face="bold"),
+    plot.subtitle = element_text(color="#666"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+---
+
+# 3.4 Casos Especiales
+
+## 3.4.1 No acotamiento
+
+```{r no-acotamiento, fig.width=6, fig.height=5}
+region_na <- data.frame(x=c(0,0,2,8,8), y=c(1,8,0,0,8))
+ggplot() +
+  geom_polygon(data=region_na, aes(x,y), fill="#C62828", alpha=0.2) +
+  geom_abline(intercept=1, slope=-0.5, color="#C62828", size=1.3) +
+  annotate("text",x=5,y=5.5,
+           label="Region factible\nno acotada\nZ → Infinito",
+           size=4.5,color="#C62828",fontface="bold",hjust=0.5) +
+  annotate("segment",x=4,xend=7.5,y=3,yend=6.5,
+           arrow=arrow(length=unit(0.35,"cm")),
+           color="#C62828",size=1.5) +
+  labs(title="No acotamiento — Z crece sin límite",
+       subtitle="No existe solución óptima finita",
+       x="x1",y="x2") +
+  xlim(0,8)+ylim(0,8)+
+  theme_minimal(base_size=14)+
+  theme(plot.title=element_text(color="#003087",face="bold"))
+```
+
+<div class="tip-box">
+<strong>Señal en Simplex:</strong> en la prueba de razón mínima, ningún coeficiente de la columna pivote es positivo → no hay límite superior para Z.
+</div>
+
+## 3.4.2 Degeneración
+
+Ocurre cuando una **variable básica tiene valor cero**. Z no mejora en esa iteración pero el algoritmo continúa normalmente hasta el óptimo.
+
+## 3.4.3 Convergencia
+
+El Simplex **siempre termina** porque:
+
+1. El número de vértices (soluciones básicas factibles) es **finito**
+2. En cada iteración Z **no disminuye**
+3. No se visita el mismo vértice dos veces (sin degeneración)
+
+---
+
+# Resumen de la Semana 5
+
+```{r resumen-final, echo=FALSE}
+df_rf <- data.frame(
+  Tema=c("3.1","3.1","3.1","3.2","3.3","3.3","3.3","3.4"),
+  Concepto=c(
+    "Forma CANÓNICA → tiene DESIGUALDADES (≤)",
+    "Forma ESTÁNDAR → tiene IGUALDADES (=)",
+    "Variables de HOLGURA: 1 por cada restricción ≤",
+    "Método GRÁFICO: solo con exactamente 2 variables",
+    "Método SIMPLEX: para más de 2 variables/restricciones",
+    "Algebraico y tabular son EQUIVALENTES",
+    "Criterio de optimalidad: todos los coef. de Z ≥ 0",
+    "No acotamiento, degeneración, convergencia"
+  )
+)
+kable(df_rf, col.names=c("Tema","Concepto Clave"), align=c("c","l"),
+      caption="Resumen Semana 5 — Modelos de Optimización") %>%
+  kable_styling(bootstrap_options=c("striped","hover","bordered"),
+                full_width=TRUE, font_size=15) %>%
+  row_spec(0, background="#003087", color="#FFD100", bold=TRUE)
+```
+
+<div class="sabes-box">
+<p><strong>Próxima semana (Semana 6):</strong> Actividad 5 — resolverás problemas completos con el Método Simplex. Asegúrate de dominar la conversión a forma estándar, la prueba de razón mínima y la lectura de la solución óptima desde la tabla final.</p>
+</div>
+
+---
+
+*Prof. Fausto Noé Jiménez | Modelos de Optimización | SABES Campus San Felipe | Mayo–Agosto 2026*
